@@ -268,7 +268,7 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
     # get MIP PET images and useful nifti stats from nifti header
     pet_path = os.path.join(data_in_root, row['relative_path'], pet_fname)
     img_pet = nib.load(pet_path)
-    pet = img_pet.get_fdata().astype("uint8")
+    pet = img_pet.get_fdata() ## CANNOT do this...image would get ruined...astype("uint8"). Need to save as float32 or floats 64
     header = img_pet.header.copy()
     stats = dict()
     stats['liver'] = header['intent_p1']
