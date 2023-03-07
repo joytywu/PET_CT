@@ -177,11 +177,47 @@ def resample_ct(nii_out_path):
         
         # Try lowering memory constraints by changing to a different data type
         try:
-            new_dtype = np.uint16
+            new_dtype = np.float32
             CTres = change_dtype(nilearn.image.resample_to_img(ct, pet, fill_value=-1024), new_dtype)
             nib.save(CTres, nii_out_path/'CTres.nii.gz')
         except Exception as e: 
             print(e)
+            
+            
+def resample_pet(nii_out_path):
+    # resample CT to PET and mask resolution -- this gives float64 memory error for some studies
+    ct   = nib.load(nii_out_path/'CT.nii.gz')
+    pet  = nib.load(nii_out_path/'SUV.nii.gz')
+    seg  = nib.load(nii_out_path/'SEG.nii.gz')
+    
+    # resampling pet
+    try:
+        res = nilearn.image.resample_to_img(pet, ct, interpolation = 'linear')
+        nib.save(res, nii_out_path/'SUVres.nii.gz')
+    except Exception as e:
+        print(e)
+        # Try lowering memory constraints by changing to a different data type
+        try:
+            new_dtype = np.float32
+            res = change_dtype(nilearn.image.resample_to_img(pet, ct, interpolation = 'linear'), new_dtype)
+            nib.save(res, nii_out_path/'SUVres.nii.gz')
+        except Exception as e: 
+            print(e) 
+    
+    # resampling segmentation
+    try:
+        res = nilearn.image.resample_to_img(seg, ct, interpolation = 'linear')
+        nib.save(res, nii_out_path/'SEGres.nii.gz')
+    except Exception as e:
+        print(e)
+        
+        # Try lowering memory constraints by changing to a different data type
+        try:
+            new_dtype = np.float32
+            res = change_dtype(nilearn.image.resample_to_img(seg, ct, interpolation = 'linear'), new_dtype)
+            nib.save(res, nii_out_path/'SEGres.nii.gz')
+        except Exception as e: 
+            print(e) 
 
 
 def change_dtype(niimg_like_obj, new_dtype):
@@ -237,11 +273,15 @@ def tcia_to_nifti_study(study_path, nii_out_path):
 
     seg_dir = modalities["SEG"]
     dcm2nii_mask(seg_dir, nii_out_path)
-
+    
+    # down samples ct resolutation to pet
     resample_ct(nii_out_path)
+    
+    # up samples pet (standardized to suv) resolutation to ct
+    resample_pet(nii_out_path)
 
 
-def convert_tcia_to_nifti(study_dirs,nii_out_root):
+def convert_tcia_to_nifti(study_dirs,nii_out_root, modalities = ['CT', 'PT', 'SEG','resCT','resPT']):
     # batch conversion of all patients
     for study_dir in tqdm(study_dirs):
         
@@ -252,28 +292,39 @@ def convert_tcia_to_nifti(study_dirs,nii_out_root):
         nii_out_path = plb.Path(nii_out_root/study_dir.parent.name)
         nii_out_path = nii_out_path/study_dir.name
         os.makedirs(nii_out_path, exist_ok=True)
+        
+        if 'CT' in modalities:
+            ct_dir = modalities["CT"]
+            dcm2nii_CT(ct_dir, nii_out_path)
+        
+        if 'PT' in modalities:
+            pet_dir = modalities["PT"]
+            dcm2nii_PET(pet_dir, nii_out_path)
+        
+        if 'SEG' in modalities:
+            seg_dir = modalities["SEG"]
+            dcm2nii_mask(seg_dir, nii_out_path)
 
-        ct_dir = modalities["CT"]
-        dcm2nii_CT(ct_dir, nii_out_path)
+        # down samples ct resolutation to pet
+        if 'resCT' in modalities:
+            resample_ct(nii_out_path)
 
-        pet_dir = modalities["PT"]
-        dcm2nii_PET(pet_dir, nii_out_path)
-
-        seg_dir = modalities["SEG"]
-        dcm2nii_mask(seg_dir, nii_out_path)
-
-        resample_ct(nii_out_path)
+        # up samples pet (standardized to suv) resolutation to ct
+        if 'resPT' in modalities:
+            resample_pet(nii_out_path)
 
         
 
 if __name__ == "__main__":
     path_to_data = plb.Path(sys.argv[1])  # path to downloaded TCIA DICOM database, e.g. '.../FDG-PET-CT-Lesions/'
     nii_out_root = plb.Path(sys.argv[2])  # path to the to be created NiFTI files, e.g. '...tcia_nifti/FDG-PET-CT-Lesions/')
-    unprocessed_only = True
+    
+    unprocessed_only = False # default should be True
+    modalities = ['resPT'] # have processed the rest previously 
     
     if unprocessed_only:
         study_dirs = find_unprocessed_studies(path_to_data, nii_out_root)
     else:
         study_dirs = find_studies(path_to_data)
     
-    convert_tcia_to_nifti(study_dirs, nii_out_root)
+    convert_tcia_to_nifti(study_dirs, nii_out_root, modalities)
