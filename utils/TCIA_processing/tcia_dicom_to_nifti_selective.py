@@ -175,10 +175,10 @@ def resample_ct(nii_out_path):
     except Exception as e:
         print(e)
         
-        # Try lowering memory constraints by changing to a different data type
+        # Try lowering storage by changing to a different data type and rounding to 3 decimal places
         try:
             new_dtype = np.float32
-            CTres = change_dtype(nilearn.image.resample_to_img(ct, pet, fill_value=-1024), new_dtype)
+            CTres = compress_data(nilearn.image.resample_to_img(ct, pet, fill_value=-1024), new_dtype)
             nib.save(CTres, nii_out_path/'CTres.nii.gz')
         except Exception as e: 
             print(e)
@@ -191,18 +191,13 @@ def resample_pet(nii_out_path):
     seg  = nib.load(nii_out_path/'SEG.nii.gz')
     
     # resampling pet
+    # Try lowering storage by changing to a different data type and rounding to 3 decimal places
     try:
-        res = nilearn.image.resample_to_img(pet, ct, interpolation = 'linear')
+        new_dtype = np.float32
+        res = compress_data(nilearn.image.resample_to_img(pet, ct, interpolation = 'linear'), new_dtype)
         nib.save(res, nii_out_path/'SUVres.nii.gz')
-    except Exception as e:
-        print(e)
-        # Try lowering memory constraints by changing to a different data type
-        try:
-            new_dtype = np.float32
-            res = change_dtype(nilearn.image.resample_to_img(pet, ct, interpolation = 'linear'), new_dtype)
-            nib.save(res, nii_out_path/'SUVres.nii.gz')
-        except Exception as e: 
-            print(e) 
+    except Exception as e: 
+        print(e) 
     
     # resampling segmentation
     try:
@@ -211,16 +206,16 @@ def resample_pet(nii_out_path):
     except Exception as e:
         print(e)
         
-        # Try lowering memory constraints by changing to a different data type
+        # Try lowering storage by changing to a different data type and rounding to 3 decimal places
         try:
             new_dtype = np.float32
-            res = change_dtype(nilearn.image.resample_to_img(seg, ct, interpolation = 'linear'), new_dtype)
+            res = compress_data(nilearn.image.resample_to_img(seg, ct, interpolation = 'linear'), new_dtype)
             nib.save(res, nii_out_path/'SEGres.nii.gz')
         except Exception as e: 
             print(e) 
 
 
-def change_dtype(niimg_like_obj, new_dtype):
+def compress_data(niimg_like_obj, new_dtype):
     # update data type:
     hd = niimg_like_obj.header
     new_data = niimg_like_obj.get_data().astype(new_dtype)
@@ -309,7 +304,8 @@ def convert_tcia_to_nifti(study_dirs,nii_out_root, modalities = ['CT', 'PT', 'SE
         if 'resCT' in modalities:
             resample_ct(nii_out_path)
 
-        # up samples pet (standardized to suv) resolutation to ct
+        # up samples pet and the associated segmentation (standardized to suv) resolutation to ct
+        # will round voxels to 3 decimal places otherwise storage size blows up 3 times.
         if 'resPT' in modalities:
             resample_pet(nii_out_path)
 
