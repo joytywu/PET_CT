@@ -229,7 +229,7 @@ def decode_rle(rle):
 
 
 # Get all the segmentation from each frame/slice of a nifti
-def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id, annotation_id):
+def get_annotations_per_frame(image_id, file_name, frame_idx, study_path, frame, category_id, annotation_id):
     
     masks, areas, bboxes, centroids, output = get_connected_componets_per_frame(frame)
     
@@ -250,7 +250,7 @@ def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id
         seg_info = create_segment_info_format(0, [], category_id, None)
         segments_info.append(seg_info)
     
-    frame_annotations = create_annotation_format(image_id, file_name, frame_idx, segments_info)
+    frame_annotations = create_annotation_format(image_id, file_name, frame_idx, study_path, segments_info)
     
     return frame_annotations, np.dstack(masks).astype("uint8"), annotation_id
 
@@ -283,7 +283,7 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         # filename for .npy to save numpy array for the frame and the binary masks
         npy_file_name = str(image_id) + '.npy'
         
-        frame_annotations, masks, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, frame
+        frame_annotations, masks, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, study_path, frame
                                                                             , category_id, annotation_id)
         annotations.append(frame_annotations)
         
@@ -338,12 +338,13 @@ def create_image_annotation(image_id, file_name, frame_idx, width, height, age, 
     return image
 
 
-def create_annotation_format(image_id, file_name, frame_idx, segments_info):
+def create_annotation_format(image_id, file_name, frame_idx, study_path, segments_info):
     # COCO format for a RLE segmentation annotation
     annotations = {
         "image_id": image_id,
         "file_name": file_name,
         "frame_idx": frame_idx, 
+        "nii_file_name:": study_path,
         "segments_info": segments_info
     }
     
