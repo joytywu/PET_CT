@@ -24,18 +24,18 @@ import base64
 # common file names for all the nifti to be processed
 global seg_fname
 global pet_fname
-seg_fname = 'SEGres.nii.gz'
-pet_fname = 'SUVres.nii.gz'
+seg_fname = 'SEG_MIP.nii.gz'
+pet_fname = 'SUV_MIP.nii.gz'
 
-# number of frames/slices to be processed from each nifti
-num_frames = 'all'
+# number of frames to be processed from each nifti
+num_frames = 48
 
 # info in coco format
 today = date.today()
 info = {
     "year": 2022,
     "version": 'v1',
-    "description": "COCO FDG PET/CT Axial Tumor Detection",
+    "description": "COCO FDG PET/CT MIP Tumor Detection",
     "contributor": ["University Hospital Tübingen and University Hospital of the LMU, Germany", "Stanford University, USA", "IBM Research, USA"],
     "url": "https://wiki.cancerimagingarchive.net/pages/viewpage.action?pageId=93258287#9325828763a33c8a5d664f64be6158c55afcef63",
     "source_data_citation": "Gatidis S, Kuestner T. (2022) A whole-body FDG-PET/CT dataset with manually annotated tumor lesions (FDG-PET-CT-Lesions) [Dataset]. The Cancer Imaging Archive. DOI: 10.7937/gkr0-xv29",
@@ -495,12 +495,12 @@ if __name__ == "__main__":
         
 
 # run from terminal e.g.:
-# python create_annotations_petct_detr.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_Axial/FDG-PET-CT-Lesions/
-# python create_annotations_petct_detr.py /gpfs/fs0/data/stanford_data/petct/NIFTI/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_Axial/FDG-PET-CT-Lesions/
+# python src/create_annotations_petct_detr.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP/FDG-PET-CT-Lesions/
+# python create_annotations_petct_detr.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
 
 
 # Output dataset directory structure:
-# DETR_Axial/FDG-PET-CT-Lesions/
+# DETR_MIP/FDG-PET-CT-Lesions/
 #    -- annotations
 #        -- detr_train.json
 #        -- detr_test.json
