@@ -495,8 +495,8 @@ if __name__ == "__main__":
         
 
 # run from terminal e.g.:
-# python src/create_annotations_petct_detr.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP/FDG-PET-CT-Lesions/
-# python create_annotations_petct_detr.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
+# python src/create_annotations_petct_detr_MIP.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP/FDG-PET-CT-Lesions/
+# python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
 
 
 # Output dataset directory structure:
