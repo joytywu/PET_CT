@@ -276,7 +276,7 @@ def tcia_to_nifti_study(study_path, nii_out_path):
     resample_pet(nii_out_path)
 
 
-def convert_tcia_to_nifti(study_dirs,nii_out_root, modalities = ['CT', 'PT', 'SEG','resCT','resPT']):
+def convert_tcia_to_nifti(study_dirs,nii_out_root, processes = ['CT', 'PT', 'SEG','resCT','resPT']):
     # batch conversion of all patients
     for study_dir in tqdm(study_dirs):
         
@@ -288,25 +288,25 @@ def convert_tcia_to_nifti(study_dirs,nii_out_root, modalities = ['CT', 'PT', 'SE
         nii_out_path = nii_out_path/study_dir.name
         os.makedirs(nii_out_path, exist_ok=True)
         
-        if 'CT' in modalities:
+        if 'CT' in processes:
             ct_dir = modalities["CT"]
             dcm2nii_CT(ct_dir, nii_out_path)
         
-        if 'PT' in modalities:
+        if 'PT' in processes:
             pet_dir = modalities["PT"]
             dcm2nii_PET(pet_dir, nii_out_path)
         
-        if 'SEG' in modalities:
+        if 'SEG' in processes:
             seg_dir = modalities["SEG"]
             dcm2nii_mask(seg_dir, nii_out_path)
 
         # down samples ct resolutation to pet
-        if 'resCT' in modalities:
+        if 'resCT' in processes:
             resample_ct(nii_out_path)
 
         # up samples pet and the associated segmentation (standardized to suv) resolutation to ct
         # will round voxels to 3 decimal places otherwise storage size blows up 3 times.
-        if 'resPT' in modalities:
+        if 'resPT' in processes:
             resample_pet(nii_out_path)
 
         
@@ -316,11 +316,11 @@ if __name__ == "__main__":
     nii_out_root = plb.Path(sys.argv[2])  # path to the to be created NiFTI files, e.g. '...tcia_nifti/FDG-PET-CT-Lesions/')
     
     unprocessed_only = False # default should be True
-    modalities = ['resPT'] # have processed the rest previously 
+    processes = ['resPT'] # have processed the rest previously 
     
     if unprocessed_only:
         study_dirs = find_unprocessed_studies(path_to_data, nii_out_root)
     else:
         study_dirs = find_studies(path_to_data)
     
-    convert_tcia_to_nifti(study_dirs, nii_out_root, modalities)
+    convert_tcia_to_nifti(study_dirs, nii_out_root, processes)

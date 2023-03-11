@@ -428,13 +428,13 @@ def images_annotations_info(data_in_root, table, num_frames, image_id, annotatio
         data = img_seg.get_fdata()
         
         if num_frames == 'all':
-            sampled_frames = data.shape[-1]
+            num_frames = data.shape[-1]
+
+        if num_frames > data.shape[-1]:
+            raise Exception("Number of frames exceeded number of nifti slices")
         else:
-            if num_frames > data.shape[-1]:
-                raise Exception("Number of frames exceeded number of nifti slices")
-            else:
-                # Evenly sample num_frames from nifty volume, returns frame indices
-                sampled_frames = np.linspace(0, data.shape[-1] - 1, num_frames).astype(int)
+            # Evenly sample num_frames from nifty volume, returns frame indices
+            sampled_frames = np.linspace(0, data.shape[-1] - 1, num_frames).astype(int)
             
         # Get annotations from num_frames from the nifti --> outputs a list of dictionaries and an updated annotation_id
         images, image_id, annotations, annotation_id = get_annotations_images_per_nifti(data, row, sampled_frames
