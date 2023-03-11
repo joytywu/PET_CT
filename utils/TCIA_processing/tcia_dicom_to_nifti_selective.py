@@ -196,6 +196,7 @@ def resample_pet(nii_out_path):
         new_dtype = np.float32
         res = compress_data(nilearn.image.resample_to_img(pet, ct, interpolation = 'linear'), new_dtype)
         nib.save(res, nii_out_path/'SUVres.nii.gz')
+        print('Saved SUVres.nii.gz at', str(nii_out_path))
     except Exception as e: 
         print(e) 
     
