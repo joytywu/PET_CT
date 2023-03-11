@@ -202,7 +202,7 @@ def resample_pet(nii_out_path):
     
     # resampling segmentation
     try:
-        res = nilearn.image.resample_to_img(seg, ct, interpolation = 'continuous')
+        res = nilearn.image.resample_to_img(seg, ct, interpolation = 'nearest')
         nib.save(res, nii_out_path/'SEGres.nii.gz')
     except Exception as e:
         print(e)
@@ -210,7 +210,7 @@ def resample_pet(nii_out_path):
         # Try lowering storage by changing to a different data type and rounding to 3 decimal places
         try:
             new_dtype = np.float32
-            res = compress_data(nilearn.image.resample_to_img(seg, ct, interpolation = 'continuous'), new_dtype)
+            res = compress_data(nilearn.image.resample_to_img(seg, ct, interpolation = 'nearest'), new_dtype)
             nib.save(res, nii_out_path/'SEGres.nii.gz')
         except Exception as e: 
             print(e) 
