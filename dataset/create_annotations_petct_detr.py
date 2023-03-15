@@ -283,7 +283,7 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         # filename for .npy to save numpy array for the frame and the binary masks
         npy_file_name = str(image_id) + '.npy'
         
-        frame_annotations, masks, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, study_path, frame
+        frame_annotations, masks, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, pet_path, frame
                                                                             , category_id, annotation_id)
         annotations.append(frame_annotations)
         
@@ -429,9 +429,8 @@ def images_annotations_info(data_in_root, table, num_frames, image_id, annotatio
         data = img_seg.get_fdata()
         
         if num_frames == 'all':
-            num_frames = data.shape[-1]
-
-        if num_frames > data.shape[-1]:
+            sampled_frames = np.linspace(0, data.shape[-1] - 1, data.shape[-1]).astype(int)
+        elif num_frames > data.shape[-1]:
             raise Exception("Number of frames exceeded number of nifti slices")
         else:
             # Evenly sample num_frames from nifty volume, returns frame indices
