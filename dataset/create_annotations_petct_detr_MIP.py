@@ -233,24 +233,25 @@ def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id
     
     masks, areas, bboxes, centroids, output = get_connected_componets_per_frame(frame)
     
-    segments_info = []
+    frame_annotations = []
     
     # if not negative/empty masks
     if len(bboxes) > 0:
         for i, (area, bbox) in enumerate(zip(areas, bboxes)):
             # each binary mask is for a single tumor lesion 
             # object detection task will be like identify all individual traffic lights separately from the image
-            # rle_seg = binary_mask_to_rle(binary_mask)
-            seg_info = create_segment_info_format(area, bbox, category_id, annotation_id)
-            segments_info.append(seg_info)
+            rle_seg = binary_mask_to_rle(binary_mask)
+            #seg_info = create_segment_info_format(area, bbox, category_id, annotation_id)
+            ann = create_annotation_format(image_id, annotation_id, rle_seg, area, bbox, category_id)
+            frame_annotations.append(ann)
             annotation_id = annotation_id + 1 
     # otherwise adds and empty annotation without incrementing the annotation id
     else:
-        #rle_seg = binary_mask_to_rle(masks[0])
-        seg_info = create_segment_info_format(0, [], category_id, None)
-        segments_info.append(seg_info)
-    
-    frame_annotations = create_annotation_format(image_id, file_name, frame_idx, segments_info)
+        rle_seg = binary_mask_to_rle(masks[0])
+        #seg_info = create_segment_info_format(0, [], 0, None)
+        bbox = [0,0,0,0]
+        ann = create_annotation_format(image_id, annotation_id, rle_seg, 0, bbox, 0)
+        frame_annotations.append(seg_info)
     
     return frame_annotations, np.dstack(masks).astype("uint8"), annotation_id
 
@@ -285,7 +286,8 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         
         frame_annotations, masks, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, frame
                                                                             , category_id, annotation_id)
-        annotations.append(frame_annotations)
+        #annotations.append(frame_annotations)
+        annotations.extend(frame_annotations)
         
         # Write out each frame and associated segmentation binary masks .npy
         npy_out_path = os.path.join(image_out_root, npy_file_name)
@@ -323,7 +325,7 @@ def create_category_annotation(category_dict):
 
 def create_image_annotation(image_id, file_name, frame_idx, width, height, age, sex, diagnosis, study_path, nii_stats):
     image = {
-        "image_id": image_id,
+        "id": image_id,
         "file_name": file_name,
         "frame_idx": frame_idx,
         "width": width,
@@ -338,30 +340,44 @@ def create_image_annotation(image_id, file_name, frame_idx, width, height, age, 
     return image
 
 
-def create_annotation_format(image_id, file_name, frame_idx, segments_info):
+def create_annotation_format(image_id, annotation_id, rle_seg, area, bbox, category_id):
     # COCO format for a RLE segmentation annotation
     annotations = {
         "image_id": image_id,
-        "file_name": file_name,
-        "frame_idx": frame_idx, 
-        "segments_info": segments_info
-    }
-    
-    return annotations
-
-
-def create_segment_info_format(area, bbox, category_id, annotation_id):
-    # COCO format for a RLE segmentation annotation
-    seg_info = {
-        #"segmentation": rle_seg, #save separately in .npy with image frame
+        "id": annotation_id,
+        "segmentation": rle_seg, #also saved separately in .npy with image frame
         "area": area,
         "iscrowd": 0,
         "bbox": bbox,
-        "category_id": category_id,
-        "id": annotation_id
+        "category_id": category_id
     }
+    return annotations
+
+
+# def create_annotation_format(image_id, file_name, frame_idx, segments_info):
+#     # COCO format for a RLE segmentation annotation
+#     annotations = {
+#         "image_id": image_id,
+#         "file_name": file_name,
+#         "frame_idx": frame_idx, 
+#         "segments_info": segments_info
+#     }
     
-    return seg_info
+#     return annotations
+
+
+# def create_segment_info_format(area, bbox, category_id, annotation_id):
+#     # COCO format for a RLE segmentation annotation
+#     seg_info = {
+#         #"segmentation": rle_seg, #save separately in .npy with image frame
+#         "area": area,
+#         "iscrowd": 0,
+#         "bbox": bbox,
+#         "category_id": category_id,
+#         "id": annotation_id
+#     }
+    
+#     return seg_info
 
 
 # create coco json format
@@ -384,18 +400,20 @@ def get_relative_studypath(fullpath):
 
 
 # Create reproducible train test split from .csv from the Tubingen dataset
-def train_test_split(csvpath):
+def train_val_test_split(csvpath):
     tab = pd.read_csv(csvpath)
     tab['relative_path'] = [get_relative_studypath(fullpath) for fullpath in tab['File Location']]
     # sort alphabetically by subject ID to obtain same split
     all_subjects = sorted(list(set(tab['Subject ID'])))
-    train_ids = all_subjects[:800]
+    train_ids = all_subjects[:720]
+    val_ids = all_subjects[720:800]
     test_ids = all_subjects[800:]
     keep = ['Study UID', 'relative_path','diagnosis', 'age', 'sex']
     train_tab = tab[tab['Subject ID'].isin(train_ids)][keep].drop_duplicates().copy()
+    val_tab = tab[tab['Subject ID'].isin(val_ids)][keep].drop_duplicates().copy()
     test_tab = tab[tab['Subject ID'].isin(test_ids)][keep].drop_duplicates().copy()
     
-    return train_tab, test_tab
+    return train_tab, val_tab, test_tab
 
 
 # https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable
@@ -496,6 +514,7 @@ if __name__ == "__main__":
 # run from terminal e.g.:
 # python src/create_annotations_petct_detr_MIP.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP/FDG-PET-CT-Lesions/
 # python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
+# python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP2/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP2/FDG-PET-CT-Lesions/
 
 
 # Output dataset directory structure:
