@@ -229,7 +229,7 @@ def decode_rle(rle):
 
 
 # Get all the segmentation from each frame/slice of a nifti
-def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id, annotation_id, w, h):
+def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id, annotation_id):
     
     masks, areas, bboxes, centroids, output = get_connected_componets_per_frame(frame)
     
@@ -249,7 +249,7 @@ def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id
     else:
         rle_seg = binary_mask_to_rle(masks[0])
         #seg_info = create_segment_info_format(0, [], 0, None)
-        bbox = [0,0,w,h]
+        bbox = [0,0,0,0]
         ann = create_annotation_format(image_id, annotation_id, rle_seg, 0, bbox, 0)
         frame_annotations.append(ann)
         annotation_id = annotation_id + 1 
@@ -287,7 +287,7 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         npy_file_name = str(image_id) + '.npy'
         
         frame_annotations, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, frame
-                                                                            , category_id, annotation_id, w, h)
+                                                                            , category_id, annotation_id)
         #annotations.append(frame_annotations)
         annotations.extend(frame_annotations)
         
