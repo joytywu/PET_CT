@@ -229,7 +229,7 @@ def decode_rle(rle):
 
 
 # Get all the segmentation from each frame/slice of a nifti
-def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id, annotation_id):
+def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id, annotation_id, w, h):
     
     masks, areas, bboxes, centroids, output = get_connected_componets_per_frame(frame)
     
@@ -237,7 +237,7 @@ def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id
     
     # if not negative/empty masks
     if len(bboxes) > 0:
-        for i, (area, bbox) in enumerate(zip(areas, bboxes)):
+        for i, (area, bbox, binary_mask) in enumerate(zip(areas, bboxes, masks)):
             # each binary mask is for a single tumor lesion 
             # object detection task will be like identify all individual traffic lights separately from the image
             rle_seg = binary_mask_to_rle(binary_mask)
@@ -249,11 +249,13 @@ def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id
     else:
         rle_seg = binary_mask_to_rle(masks[0])
         #seg_info = create_segment_info_format(0, [], 0, None)
-        bbox = [0,0,0,0]
+        bbox = [0,0,w,h]
         ann = create_annotation_format(image_id, annotation_id, rle_seg, 0, bbox, 0)
-        frame_annotations.append(seg_info)
+        frame_annotations.append(ann)
+        annotation_id = annotation_id + 1 
     
-    return frame_annotations, np.dstack(masks).astype("uint8"), annotation_id
+    #return frame_annotations, np.dstack(masks).astype("uint8"), annotation_id
+    return frame_annotations, annotation_id
 
 
 # Get all the segmentation from sampled frames of each nifti
@@ -284,8 +286,8 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         # filename for .npy to save numpy array for the frame and the binary masks
         npy_file_name = str(image_id) + '.npy'
         
-        frame_annotations, masks, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, frame
-                                                                            , category_id, annotation_id)
+        frame_annotations, annotation_id = get_annotations_per_frame(image_id, npy_file_name, frame_idx, frame
+                                                                            , category_id, annotation_id, w, h)
         #annotations.append(frame_annotations)
         annotations.extend(frame_annotations)
         
@@ -293,7 +295,7 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         npy_out_path = os.path.join(image_out_root, npy_file_name)
         with open(npy_out_path, 'wb') as f:
             np.save(f, pet[:,:,frame_idx].squeeze())
-            np.save(f, masks)
+            #np.save(f, masks)
             
         # create_image_annotation returns a dictionary for each nifti
         #mip_pet = pet[:,:,frame_idx].copy().squeeze().tolist()
@@ -483,12 +485,12 @@ if __name__ == "__main__":
         os.makedirs(os.path.join(data_out_root,'images','test'))
     
     # Get train test split for MIP PETCT coco dataset
-    train_tab, test_tab = train_test_split(csvpath)
+    train_tab, val_tab, test_tab = train_val_test_split(csvpath)
     
     # This id will be automatically increased as we go
     annotation_id = 0
     image_id = 0
-    for keyword, table in zip(["train", "test"],[train_tab,test_tab]):
+    for keyword, table in zip(["train", "val", "test"],[train_tab,test_tab]):
         # Get the standard COCO JSON format
         coco_format = get_coco_json_format()
         
@@ -514,7 +516,7 @@ if __name__ == "__main__":
 # run from terminal e.g.:
 # python src/create_annotations_petct_detr_MIP.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP/FDG-PET-CT-Lesions/
 # python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
-# python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP2/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP2/FDG-PET-CT-Lesions/
+# python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP2/FDG-PET-CT-Lesions/
 
 
 # Output dataset directory structure:
