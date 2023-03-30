@@ -482,6 +482,7 @@ if __name__ == "__main__":
     if not os.path.isdir(data_out_root):
         os.makedirs(os.path.join(data_out_root,'annotations'))
         os.makedirs(os.path.join(data_out_root,'images','train'))
+        os.makedirs(os.path.join(data_out_root,'images','val'))
         os.makedirs(os.path.join(data_out_root,'images','test'))
     
     # Get train test split for MIP PETCT coco dataset
@@ -490,7 +491,7 @@ if __name__ == "__main__":
     # This id will be automatically increased as we go
     annotation_id = 0
     image_id = 0
-    for keyword, table in zip(["train", "val", "test"],[train_tab,test_tab]):
+    for keyword, table in zip(["train", "val", "test"],[train_tab,val_tab,test_tab]):
         # Get the standard COCO JSON format
         coco_format = get_coco_json_format()
         
