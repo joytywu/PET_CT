@@ -24,8 +24,8 @@ import base64
 # common file names for all the nifti to be processed
 global seg_fname
 global pet_fname
-seg_fname = 'SEG_MIP.nii.gz'
-pet_fname = 'SUV_MIP.nii.gz'
+seg_fname = 'SEG_MIP_scale.nii.gz'
+pet_fname = 'SUV_MIP_scale.nii.gz'
 
 # number of frames to be processed from each nifti
 num_frames = 48
