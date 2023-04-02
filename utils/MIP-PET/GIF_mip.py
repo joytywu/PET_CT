@@ -24,7 +24,7 @@ from scipy import ndimage
 from tqdm import tqdm
 import pathlib as plb
 import sys
-
+import cv2
 
 #### Create MIP GIF
 def create_gif(filenames, duration):
