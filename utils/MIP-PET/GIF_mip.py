@@ -84,7 +84,7 @@ def create_mipGIF_from_3D(img,nb_image=48,duration=0.1,is_mask=False,borne_max=N
     print('Interpolating')
     img_data+=1e-5
     for angle in tqdm(np.linspace(0,360,nb_image)):
-        ls_slice=[]
+        #ls_slice=[]
         # This step is slow: https://stackoverflow.com/questions/14163211/rotation-in-python-with-ndimage
         vol_angle= scipy.ndimage.interpolation.rotate(img_data,angle,order=0)
         
@@ -166,7 +166,7 @@ def create_mipNIFTI_from_3D(img, nb_image=48):
 #     print('Interpolating')
     img_data+=1e-5
     for angle in tqdm(np.linspace(0,360,nb_image)):
-        ls_slice=[]
+        #ls_slice=[]
         # This step is slow: https://stackoverflow.com/questions/14163211/rotation-in-python-with-ndimage
 #         vol_angle= scipy.ndimage.interpolation.rotate(img_data,angle,order=0)
         vol_angle = scipy.ndimage.rotate(img_data,angle,order=0)
@@ -183,6 +183,50 @@ def create_mipNIFTI_from_3D(img, nb_image=48):
     mip_nifti = nib.Nifti1Image(new_data, None, header)
     
     return mip_nifti
+
+
+def rescale_mipNIFTI(img, seg):
+    ls_mip=[]
+    ls_seg=[]
+    
+    img_data = img.get_fdata()
+    header = img.header.copy()
+    nb_image = img_data.shape[2]
+    seg_data = seg.get_fdata()
+    seg_header = seg.header.copy()
+
+    max_edge = 0
+    for idx in range(nb_image):
+        mip = img_data[:,:,idx].copy()
+        seg_mip = seg_data[:,:,idx].copy()
+        
+        coords = cv2.findNonZero(mip)
+        x, y, w, h = cv2.boundingRect(coords) # Find minimum spanning bounding box
+        target_shape = (w, int(header['pixdim'][3]/header['pixdim'][1]*h))
+        max_edge = max([max_edge, np.max(target_shape)])
+        
+        rect = mip[y:y+h, x:x+w]
+        seg_rect = seg_mip[y:y+h, x:x+w]
+        
+        new_slice = cv2.resize(rect, dsize=target_shape, interpolation=cv2.INTER_LINEAR)
+        ls_mip.append(new_slice)
+        new_seg = cv2.resize(seg_rect, dsize=target_shape, interpolation=cv2.INTER_LINEAR)
+        ls_seg.append(new_seg)
+
+    ls_padded = []
+    ls_seg_padded = []
+    for new_slice, new_seg in zip(ls_mip, ls_seg):
+        new_padded = to_shape(new_slice, (max_edge,max_edge))
+        ls_padded.append(new_padded)
+        seg_padded = to_shape(new_seg, (max_edge,max_edge))
+        ls_seg_padded.append(seg_padded)
+    
+    new_data = np.dstack(ls_padded) #shape [:,:,i]
+    mip_nifti = nib.Nifti1Image(new_data, None, header)
+    new_seg_data = np.dstack(ls_seg_padded) #shape [:,:,i]
+    seg_nifti = nib.Nifti1Image(new_seg_data, None, seg_header)
+    
+    return mip_nifti, seg_nifti
 
 
 def find_studies(path_to_data):
@@ -249,6 +293,25 @@ def convert_axial_niis_to_MIP(study_dirs, nii_out_root):
         mip_nifti = create_mipNIFTI_from_3D(img, nb_image=48) #48 is the number of MIP slices in MIM available to rads
         nib.save(mip_nifti, os.path.join(nii_out_path, 'SEG_MIP.nii.gz'))
 
+        
+def rescale_all_MIP(study_dirs, nii_out_root):
+    # batch rescaling of all patients
+    for study_dir in tqdm(study_dirs):
+        
+        patient = study_dir.parent.name
+        print("The following patient directory is being processed: ", patient)
+        
+        # Preserving same diretory structure as original tcia dataset
+        nii_out_path = plb.Path(nii_out_root/study_dir.parent.name)
+        nii_out_path = nii_out_path/study_dir.name
+        os.makedirs(nii_out_path, exist_ok=True) #leaves dir unaltered if already exists
+        
+        print('Processing SUV_MIP.nii.gz and SEG_MIP.nii.gz for:', patient)
+        img = nib.load(os.path.join(study_dir, 'SUV_MIP.nii.gz'))
+        seg = nib.load(os.path.join(study_dir, 'SEG_MIP.nii.gz'))
+        mip_rescale, seg_rescale = rescale_mipNIFTI(img, seg)
+        nib.save(mip_rescale, os.path.join(nii_out_path, 'SUV_MIP_rescale.nii.gz'))
+        nib.save(seg_rescale, os.path.join(nii_out_path, 'SEG_MIP_rescale.nii.gz'))
     
     
 # Process all the SUV.nii.gz to a MIP_SUV.nii.gz
@@ -258,12 +321,18 @@ if __name__ == "__main__":
     
 #     study_dirs = find_studies(nii_in_root)
 
-    unprocessed_only = True
+    unprocessed_only = False
     if unprocessed_only:
         study_dirs = find_unprocessed_studies(nii_in_root, nii_out_root)
     else:
         study_dirs = find_studies(nii_in_root)
     
-    convert_axial_niis_to_MIP(study_dirs, nii_out_root)
+    # converting axial to MIP (too much padding)
+    #convert_axial_niis_to_MIP(study_dirs, nii_out_root)
+    
+    # Rescaling to remove white space border and to get same aspect ratio per PET affine 
+    # Assumes have run prior axial to MIP conversion already
+    rescale_all_MIP(study_dirs, nii_out_root)
+    
     
     
