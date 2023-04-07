@@ -519,6 +519,7 @@ if __name__ == "__main__":
 # python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
 # python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP2/FDG-PET-CT-Lesions/
 # python create_annotations_petct_detr_MIP.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP2/FDG-PET-CT-Lesions/
+# python create_annotations_petct_coco.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/COCO_Axial/FDG-PET-CT-Lesions/
 
 
 # Output dataset directory structure:
