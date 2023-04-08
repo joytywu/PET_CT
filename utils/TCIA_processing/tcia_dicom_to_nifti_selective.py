@@ -326,5 +326,5 @@ if __name__ == "__main__":
     
     convert_tcia_to_nifti(study_dirs, nii_out_root, processes)
     
-#python tcia_dicom_to_nifti_selective.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/
+#python tcia_dicom_to_nifti_selective.py /media/storage/Joy/datasets/manifest-1654187277763/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/
 
