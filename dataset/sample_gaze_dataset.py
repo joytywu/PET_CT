@@ -10,6 +10,7 @@ global seg_fname
 global pet_fname
 seg_fname = 'SEGres.nii.gz'
 pet_fname = 'SUVres.nii.gz'
+ct_fname = 'CT.nii.gz'
 
 
 def get_relative_studypath(fullpath):
@@ -26,7 +27,7 @@ def train_val_test_split(csvpath):
     train_ids = all_subjects[:720]
     val_ids = all_subjects[720:800]
     test_ids = all_subjects[800:]
-    keep = ['Study UID', 'relative_path','diagnosis', 'age', 'sex']
+    keep = ['Subject ID', 'Study UID', 'relative_path','diagnosis', 'age', 'sex']
     train_tab = tab[tab['Subject ID'].isin(train_ids)][keep].drop_duplicates().copy()
     val_tab = tab[tab['Subject ID'].isin(val_ids)][keep].drop_duplicates().copy()
     test_tab = tab[tab['Subject ID'].isin(test_ids)][keep].drop_duplicates().copy()
@@ -46,24 +47,27 @@ def copy_to_new_dir(file_path, out_dir):
     shutil.copy(file_path, out_dir)  # dst can be a folder; use shutil.copy2() to preserve timestamp
 
 
-def sample_studies(data_in_root, table, num_studies, image_out_root):
+def sample_studies(data_in_root, table, keyword, num_studies, image_out_root):
     
     pos_tab = keep_positive_cases(table, num_studies)
-    pos_tab.to_csv(os.path.join(image_out_root,'metadata_{}.csv'.format(num_studies)), index=False)
+    pos_tab.to_csv(os.path.join(image_out_root,'{}_metadata_{}.csv'.format(keyword, num_studies)), index=False)
     
     for i, row in tqdm(pos_tab.iterrows(), total=pos_tab.shape[0]):
         
         # nitfi paths
         suv_path = os.path.join(data_in_root, row['relative_path'], pet_fname)
         seg_path = os.path.join(data_in_root, row['relative_path'], seg_fname)
+        ct_path = os.path.join(data_in_root, row['relative_path'], ct_fname)
         print('Processing study:', row['relative_path'])
         
         out_dir = os.path.join(image_out_root,row['relative_path'])
         if not os.path.isdir(out_dir):
             os.makedirs(out_dir)
-            
+        
+        #copy selected studies to new location
         copy_to_new_dir(suv_path, out_dir)
         copy_to_new_dir(seg_path, out_dir)
+        copy_to_new_dir(ct_path, out_dir)
         print('Transferred study:', row['relative_path'])    
     
 
@@ -92,6 +96,6 @@ if __name__ == "__main__":
             os.makedirs(image_out_root)
         
         # Sample studies from each split bucket
-        sample_studies(data_in_root, table, num_studies, image_out_root)
+        sample_studies(data_in_root, table, keyword, num_studies, image_out_root)
         
-# python sample_gaze_dataset.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /home/joytywu/Documents/gaze_datasets/pilot/
+#python sample_gaze_dataset.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /home/joytywu/Documents/gaze_datasets/pilot/
