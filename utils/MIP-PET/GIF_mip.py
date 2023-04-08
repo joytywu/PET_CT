@@ -333,6 +333,7 @@ if __name__ == "__main__":
     # Rescaling to remove white space border and to get same aspect ratio per PET affine 
     # Assumes have run prior axial to MIP conversion already. Can write out in same directory, e.g.:
     # python GIF_mip.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/
+    # python GIF_mip.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/
     rescale_all_MIP(study_dirs, nii_out_root)
     
     

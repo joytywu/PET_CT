@@ -24,11 +24,11 @@ import base64
 # common file names for all the nifti to be processed
 global seg_fname
 global pet_fname
-seg_fname = 'SEG_MIP_rescale.nii.gz'
-pet_fname = 'SUV_MIP_rescale.nii.gz'
+seg_fname = 'SEGres.nii.gz'
+pet_fname = 'SUVres.nii.gz'
 
 # number of frames to be processed from each nifti
-num_frames = 48
+num_frames = 'all'
 
 # info in coco format
 today = date.today()
@@ -519,6 +519,7 @@ if __name__ == "__main__":
 # python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP/FDG-PET-CT-Lesions/
 # python create_annotations_petct_detr_MIP.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/DETR_MIP2/FDG-PET-CT-Lesions/
 # python create_annotations_petct_detr_MIP.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/DETR_MIP2/FDG-PET-CT-Lesions/
+# python create_annotations_petct_coco.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/COCO_Axial/FDG-PET-CT-Lesions/
 
 
 # Output dataset directory structure:
