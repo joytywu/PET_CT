@@ -325,3 +325,6 @@ if __name__ == "__main__":
         study_dirs = find_studies(path_to_data)
     
     convert_tcia_to_nifti(study_dirs, nii_out_root, processes)
+    
+#python tcia_dicom_to_nifti_selective.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/
+
