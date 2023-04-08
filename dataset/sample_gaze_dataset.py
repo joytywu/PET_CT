@@ -12,6 +12,11 @@ seg_fname = 'SEGres.nii.gz'
 pet_fname = 'SUVres.nii.gz'
 
 
+def get_relative_studypath(fullpath):
+    pathdirs = fullpath.split('/')
+    return os.path.join(pathdirs[2],pathdirs[3])
+
+
 # Create reproducible train test split from .csv from the Tubingen dataset
 def train_val_test_split(csvpath):
     tab = pd.read_csv(csvpath)
