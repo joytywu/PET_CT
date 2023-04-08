@@ -3,7 +3,7 @@ import pathlib as plb
 import pandas as pd
 import sys
 from tqdm import tqdm
-
+import shutil
 
 # file types to be sampled
 global seg_fname
@@ -38,7 +38,7 @@ def keep_positive_cases(dftab, num_studies):
 
 
 def copy_to_new_dir(file_path, out_dir):
-    !cp $file_path $out_dir
+    shutil.copy(file_path, out_dir)  # dst can be a folder; use shutil.copy2() to preserve timestamp
 
 
 def sample_studies(data_in_root, table, num_studies, image_out_root):
