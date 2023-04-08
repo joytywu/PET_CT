@@ -73,7 +73,8 @@ if __name__ == "__main__":
     data_out_root = plb.Path(sys.argv[2])  # path to where we want to save the DETR dataset, e.g. '...datasets/DETR/FDG-PET-CT-Lesions/')
     if not os.path.isdir(data_out_root):
         os.makedirs(data_out_root)
-    num_studies = int(plb.Path(sys.argv[3]))
+    
+    num_studies = 10
     
     # Get train test split for MIP PETCT coco dataset
     train_tab, val_tab, test_tab = train_val_test_split(csvpath)
@@ -88,4 +89,4 @@ if __name__ == "__main__":
         # Sample studies from each split bucket
         sample_studies(data_in_root, table, num_studies, image_out_root)
         
-# python sample_gaze_dataset.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /home/joytywu/Documents/gaze_datasets/ 10
+# python sample_gaze_dataset.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /home/joytywu/Documents/gaze_datasets/
