@@ -48,7 +48,7 @@ def copy_to_new_dir(file_path, out_dir):
 
 def sample_studies(data_in_root, table, num_studies, image_out_root):
     
-    pos_tab = keep_positive_cases(dftab, num_studies)
+    pos_tab = keep_positive_cases(table, num_studies)
     pos_tab.to_csv(os.path.join(image_out_root,'metadata_{}.csv'.format(num_studies)), index=False)
     
     for i, row in tqdm(pos_tab.iterrows(), total=pos_tab.shape[0]):
