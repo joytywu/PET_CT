@@ -259,7 +259,10 @@ def get_annotations_per_frame(image_id, file_name, frame_idx, frame, category_id
 
 
 # Get all the segmentation from sampled frames of each nifti
-def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, images, image_id, annotations, annotation_id, image_out_root):
+def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, images, image_id
+                                     , annotations, annotation_id, image_out_root):
+    global save_npy
+    
     # "images" info: w and h same for frames from same nifti
     w, h = data[:,:,0].shape
     
@@ -293,9 +296,10 @@ def get_annotations_images_per_nifti(data, row, sampled_frames, category_id, ima
         
         # Write out each frame and associated segmentation binary masks .npy
         npy_out_path = os.path.join(image_out_root, npy_file_name)
-        with open(npy_out_path, 'wb') as f:
-            np.save(f, pet[:,:,frame_idx].squeeze())
-            #np.save(f, masks)
+        if save_npy:
+            with open(npy_out_path, 'wb') as f:
+                np.save(f, pet[:,:,frame_idx].squeeze())
+                #np.save(f, masks)
             
         # create_image_annotation returns a dictionary for each nifti
         #mip_pet = pet[:,:,frame_idx].copy().squeeze().tolist()
@@ -487,6 +491,10 @@ if __name__ == "__main__":
     
     # Get train test split for MIP PETCT coco dataset
     train_tab, val_tab, test_tab = train_val_test_split(csvpath)
+    
+    # Whether to save each nifti slices as indivisual .npy
+    global save_npy
+    save_npy = False # not enough storage on NM machine
     
     # This id will be automatically increased as we go
     annotation_id = 0
