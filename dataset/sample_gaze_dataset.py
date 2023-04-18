@@ -98,4 +98,4 @@ if __name__ == "__main__":
         # Sample studies from each split bucket
         sample_studies(data_in_root, table, keyword, num_studies, image_out_root)
         
-#python sample_gaze_dataset.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /home/joytywu/Documents/gaze_datasets/pilot/
+#python sample_gaze_dataset.py /media/storage/Joy/datasets/NIFTI/FDG-PET-CT-Lesions/ /home/joytywu/Documents/gaze_datasets/pilot_resampled/
