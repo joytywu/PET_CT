@@ -335,7 +335,7 @@ def process_flat_nifties_dir(nii_in_root, nii_out_root, study_IDs):
     root = plb.Path(nii_in_root)
     full_nifty_paths = []
     for study_id in study_IDs:
-        study_path = list(root.glob('{}_*.nii.gz'.format(study_type)))
+        study_path = list(root.glob('{}_*.nii.gz'.format(study_id)))
         full_nifty_paths.extend(study_path)
 
     # axial nifty to MIP nifty for every .nii.gz file in the nii_in_root directory with filename containing study_type
