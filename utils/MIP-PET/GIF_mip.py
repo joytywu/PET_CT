@@ -371,8 +371,8 @@ if __name__ == "__main__":
     # python GIF_mip.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/
     ### rescale_all_MIP(study_dirs, nii_out_root) # shouldn't need this anymore
     
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/master/detr_dataset/test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/master/detr_dataset/test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
     
     
     
