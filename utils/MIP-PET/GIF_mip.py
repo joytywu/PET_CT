@@ -130,8 +130,8 @@ def create_mipGIF_from_3D(img,nb_image=48,duration=0.1,is_mask=False,borne_max=N
 def to_shape(a, shape):
     y_, x_ = shape
     y, x = a.shape
-    y_pad = (y_-y)
-    x_pad = (x_-x)
+    x_pad = abs((x_-x))
+    y_pad = abs((y_-y)) # should be 0
     return np.pad(a,((y_pad//2, y_pad//2 + y_pad%2), 
                      (x_pad//2, x_pad//2 + x_pad%2)),
                   mode = 'constant') #Default is 0
@@ -141,16 +141,18 @@ def to_shape(a, shape):
 def create_mipNIFTI_from_3D(img, nb_image=48):
     ls_mip=[]
     
-    
     img_data=img.get_fdata()
     shape = img.get_fdata().shape
     max_dim = max(shape)
     diag = int(np.ceil(np.sqrt(np.square(shape[0])+np.square(shape[1]))))
-    max_dim = max(max_dim, diag)
-    target_shape = (max_dim,max_dim)
+#     max_dim = max(max_dim, diag)
+#     target_shape = (max_dim,max_dim)
+    # adapted this so doesn't need to crop/reschale again.
+    max_width = max([450, diag])
+    target_shape = (shape[2], max_width) # (y_, x_)
+    print(target_shape)
     
     #Modified nifti header saving useful axial slices information
-    header=img.header.copy()
     # Can't seem to create new fields but can use existing fields to store other information...
     header = img.header.copy()
     liver_idx = img_data.shape[-1]//2
@@ -314,27 +316,61 @@ def rescale_all_MIP(study_dirs, nii_out_root):
         nib.save(seg_rescale, os.path.join(nii_out_path, 'SEG_MIP_rescale.nii.gz'))
     
     
+# will index studies with original dicom nested directory paths
+def process_nested_studies_dirs(nii_in_root, nii_out_root, unprocessed_only = False):
+    if unprocessed_only:
+        study_dirs = find_unprocessed_studies(nii_in_root, nii_out_root)
+    else:
+        study_dirs = find_studies(nii_in_root)    
+    convert_axial_niis_to_MIP(study_dirs, nii_out_root)
+    
+    
+# assumes a flat dir of nifty studies       
+def process_flat_nifties_dir(nii_in_root, nii_out_root, study_IDs):
+    os.makedirs(nii_out_root, exist_ok=True)
+    
+    # find all studies
+    root = plb.Path(nii_in_root)
+    full_nifty_paths = []
+    for study_id in study_IDs:
+        study_path = list(root.glob('{}_*.nii.gz'.format(study_type)))
+        full_nifty_paths.extend(study_path)
+
+    # axial nifty to MIP nifty for every .nii.gz file in the nii_in_root directory with filename containing study_type
+    for nifty_path in tqdm(full_nifty_paths):
+        # Preserving same diretory structure as original tcia dataset
+        nii_out_path = plb.Path(nii_out_root/nifty_path.name)
+        
+        print('Processing nifty:', nii_out_path)
+        img = nib.load(nifty_path)
+        mip_nifti = create_mipNIFTI_from_3D(img, nb_image=48) #48 is the number of MIP slices in MIM available to rads
+        nib.save(mip_nifti, nii_out_path)
+
+        
 # Process all the SUV.nii.gz to a MIP_SUV.nii.gz
 if __name__ == "__main__":
     nii_in_root = plb.Path(sys.argv[1])  # path to parent directory for all studies, e.g. '...datasets/NIFTI/FDG-PET-CT-Lesions/'
     nii_out_root = plb.Path(sys.argv[2])  # path to where we want to MIP nifti files, e.g. '...datasets/NIFTI_MIP/FDG-PET-CT-Lesions/')
+    ID_file = plb.Path(sys.argv[3]) # 1 for yes, 0 for no
     
-#     study_dirs = find_studies(nii_in_root)
-
-    unprocessed_only = False
-    if unprocessed_only:
-        study_dirs = find_unprocessed_studies(nii_in_root, nii_out_root)
+    if ID_file == '.':
+        # uses nested file paths as ID
+        process_nested_studies_dirs(nii_in_root, nii_out_root, unprocessed_only = False)
     else:
-        study_dirs = find_studies(nii_in_root)
+        df = pd.read_csv(ID_file)
+        study_IDs = df['ID'].tolist()
+        process_flat_nifties_dir(nii_in_root, nii_out_root, study_IDs = study_IDs)
     
     # converting axial to MIP (too much padding)
     #convert_axial_niis_to_MIP(study_dirs, nii_out_root)
-    
     # Rescaling to remove white space border and to get same aspect ratio per PET affine 
     # Assumes have run prior axial to MIP conversion already. Can write out in same directory, e.g.:
     # python GIF_mip.py /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/ /gpfs/fs0/data/stanford_data/petct/NIFTI_MIP/FDG-PET-CT-Lesions/
     # python GIF_mip.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/
-    rescale_all_MIP(study_dirs, nii_out_root)
+    ### rescale_all_MIP(study_dirs, nii_out_root) # shouldn't need this anymore
+    
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/master/detr_dataset/test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/master/detr_dataset/test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
     
     
     
