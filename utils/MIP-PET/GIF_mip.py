@@ -25,6 +25,8 @@ from tqdm import tqdm
 import pathlib as plb
 import sys
 import cv2
+import pandas as pd
+
 
 #### Create MIP GIF
 def create_gif(filenames, duration):
