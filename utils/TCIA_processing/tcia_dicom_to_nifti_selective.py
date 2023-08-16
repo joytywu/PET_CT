@@ -317,7 +317,7 @@ if __name__ == "__main__":
     nii_out_root = plb.Path(sys.argv[2])  # path to the to be created NiFTI files, e.g. '...tcia_nifti/FDG-PET-CT-Lesions/')
     
     unprocessed_only = False # default should be True
-    processes = ['resPT'] # have processed the rest previously 
+    processes = ['CT', 'PT', 'SEG','resCT','resPT'] # have processed the rest previously 
     
     if unprocessed_only:
         study_dirs = find_unprocessed_studies(path_to_data, nii_out_root)
