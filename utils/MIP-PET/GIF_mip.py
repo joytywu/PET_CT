@@ -375,5 +375,5 @@ if __name__ == "__main__":
     # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
     
     # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_dev/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Dev_IDs.csv'
-    
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_dev/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Dev_IDs.csv'
     
