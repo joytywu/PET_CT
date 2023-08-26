@@ -335,7 +335,7 @@ def process_flat_nifties_dir(nii_in_root, nii_out_root, study_IDs):
     root = plb.Path(nii_in_root)
     full_nifty_paths = []
     for study_id in study_IDs:
-        study_path = list(root.glob('{}_*.nii.gz'.format(study_id)))
+        study_path = list(root.glob('{}_*[Ss][Uu][Vv]*.nii.gz'.format(study_id)))
         full_nifty_paths.extend(study_path)
 
     # axial nifty to MIP nifty for every .nii.gz file in the nii_in_root directory with filename containing study_type
@@ -371,8 +371,9 @@ if __name__ == "__main__":
     # python GIF_mip.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/
     ### rescale_all_MIP(study_dirs, nii_out_root) # shouldn't need this anymore
     
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/Test_IDs.csv'
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
     
+    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_dev/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Dev_IDs.csv'
     
     
