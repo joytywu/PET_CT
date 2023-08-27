@@ -335,7 +335,8 @@ def process_flat_nifties_dir(nii_in_root, nii_out_root, study_IDs):
     root = plb.Path(nii_in_root)
     full_nifty_paths = []
     for study_id in study_IDs:
-        study_path = list(root.glob('{}_*[Ss][Uu][Vv]*.nii.gz'.format(study_id)))
+        study_path = list(root.glob('{}_*deformedSeg.nii.gz'.format(study_id)))
+        #study_path = list(root.glob('{}_*[Ss][Uu][Vv]*.nii.gz'.format(study_id)))
         #study_path = list(root.glob('{}_*[Ss][Ee][Gg]*.nii.gz'.format(study_id)))
         full_nifty_paths.extend(study_path)
         #print('###', len(full_nifty_paths))
@@ -372,12 +373,12 @@ if __name__ == "__main__":
     # python GIF_mip.py /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/ /media/storage/Joy/datasets/NIFTI_MIP/FDG-PET-CT-Lesions/
     ### rescale_all_MIP(study_dirs, nii_out_root) # shouldn't need this anymore
     
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
+    #done # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
+    #done # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_test/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Test_IDs.csv'
     
     #done #python GIF_mip.py /gpfs/fs0/data/stanford_data/master/image_for_train_processed/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_dev/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Dev_IDs.csv'
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_dev/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Dev_IDs.csv'
+    #done #python GIF_mip.py /gpfs/fs0/data/stanford_data/master/annotation_for_train/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/baseline_dev/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/Baseline_Dev_IDs.csv'
     
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/followup_shashi/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/followup/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/FU_IDs.csv'
-    # python GIF_mip.py /gpfs/fs0/data/stanford_data/followup_shashi/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/followup/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/FU_IDs.csv'
+    #done #python GIF_mip.py /gpfs/fs0/data/stanford_data/followup_shashi/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/followup/SUV_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/FU_IDs.csv'
+    #done #python GIF_mip.py /gpfs/fs0/data/stanford_data/followup_shashi/ /gpfs/fs0/data/stanford_data/petmr_detr_dataset/followup/SEG_MIP/ '/gpfs/fs0/data/stanford_data/petmr_detr_dataset/FU_IDs.csv'
     
