@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import nibabel as nib
 import math
 import cv2
+from scipy import ndimage
 
 
 # Windows a CT volume or slice
@@ -199,9 +200,7 @@ def read_and_show_study(study_path, idx, modality, dim=(512,512), out_path=None)
         cv2.imwrite(out_path, img)    
         
     
-import numpy as np
-from scipy import ndimage
-
+# Separates out individual tumors
 def get_connected_components_3D(seg_data): 
     # input seg_data is the numpy after reading nifti and get_fdata()
     
